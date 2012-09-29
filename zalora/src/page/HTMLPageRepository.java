@@ -36,8 +36,6 @@ public class HTMLPageRepository {
 	 */
 	private LinkedList<HTMLPage> unvisitedPageQueue;
 	
-	private LinkedList<HTMLPage> visitedPageQueue;
-	
 	private Timer queueTimer;
 	
 	/**
@@ -64,12 +62,21 @@ public class HTMLPageRepository {
 	 * 
 	 * @param page to be inserted into this repository.
 	 */
-	public synchronized void insert(HTMLPage page) {
+	private void privateInsert(HTMLPage page) {
 		if (!this.htmlPages.contains(page)) {
 			this.unvisitedPageQueue.add(page);
 			this.htmlPages.add(page);
-			System.out.println(page.getCanonicalPageURLString());
 		}
+	}
+	
+	/**
+	 * Inserts the given page to this repository.
+	 * 
+	 * @param page to be inserted.
+	 */
+	public synchronized void insert(HTMLPage page) {
+		privateInsert(page);
+		notifyAll();
 	}
 
 	/**
@@ -81,11 +88,13 @@ public class HTMLPageRepository {
 	public synchronized void insert(Collection<HTMLPage> pages) {
 		this.queueTimer.start();
 		for (HTMLPage page : pages) {
-			insert(page);
+			privateInsert(page);
 		}
 		
+		/* Notify all the threads that have been waiting for new information
+		 * inserted into this repository.
+		 */
 		System.out.println("Queue: " + this.unvisitedPageQueue.size());
-		System.out.println("==================================================================================");
 		this.queueTimer.pause();
 	}
 	
@@ -101,7 +110,7 @@ public class HTMLPageRepository {
 	 * 
 	 * @return true if there is no more pages to visit.
 	 */
-	public boolean isAllPagesVisited() {
+	public synchronized boolean isAllPagesVisited() {
 		return this.unvisitedPageQueue.size() == 0;
 	}
 	
@@ -123,16 +132,4 @@ public class HTMLPageRepository {
 	public synchronized int getNumberOfUnvisitedPages() {
 		return this.unvisitedPageQueue.size();
 	}
-	
-//	/**
-//	 * 
-//	 * @return
-//	 */
-//	public synchronized HTMLPage getVisitedPage() {
-//		return null;
-//	}
-//	
-//	public void waitForVisitedPage() {
-//		
-//	}
 }

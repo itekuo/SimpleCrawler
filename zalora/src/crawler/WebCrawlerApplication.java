@@ -3,6 +3,11 @@ package crawler;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import page.HTMLPageRepository;
+import policy.LinkScanner;
+import policy.PriceScanner;
+import price.PriceAnalyzer;
+
 /**
  * This class represents the application that runs the web crawler to crawl
  * through the Zalora website for price errors.
@@ -19,8 +24,8 @@ public class WebCrawlerApplication {
 	public static void main(String[] args) {
 		
 		String url = "http://www.zalora.sg";
-		// double minPrice = 20;
-		// double maxPrice = 2000;
+		double minPrice = 20;
+		double maxPrice = 2000;
 		
 		URL rootURL = null;
 		try {
@@ -28,9 +33,14 @@ public class WebCrawlerApplication {
 		} catch (MalformedURLException e) {
 			System.err.println("The given URL is malformed.");
 		}
+
+		PriceAnalyzer priceAnalyzer = new PriceAnalyzer(new PriceScanner(), minPrice, maxPrice);
+
+		HTMLPageRepository htmlPageRepository = new HTMLPageRepository();
+		LinkScanner linkScanner = new LinkScanner(rootURL.getHost(), htmlPageRepository);
+		WebCrawler webCrawler = new WebCrawler(linkScanner, htmlPageRepository, 30, priceAnalyzer);
 		
-		WebCrawler webCrawler = CrawlerFactory.createNewWebCrawler();
 		webCrawler.initialiseCrawlers();
-		webCrawler.crawl(rootURL/*, specification of the range*/);
+		webCrawler.crawl(rootURL);
 	}
 }

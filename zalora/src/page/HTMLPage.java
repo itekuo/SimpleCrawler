@@ -21,12 +21,7 @@ public class HTMLPage {
 	 * Specifies the URL this HTML represents
 	 */
 	private URL pageURL;
-	
-	/**
-	 * Content, cached once retrieved.
-	 */
-	private Document content;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -37,6 +32,7 @@ public class HTMLPage {
 			throw new IllegalArgumentException("the URL cannot be null");
 		}
 		try {
+			// Reconstruct the URL to store in its simplest form
 			this.pageURL = new URL(getCanonicalPageURL(url));
 		} catch (MalformedURLException e) {
 			throw new IllegalArgumentException("URL is malformed: " + url.toString());
@@ -54,18 +50,14 @@ public class HTMLPage {
 	 * Using the URL of this page, it retrieves it's content, and then create a
 	 * document that represents the content of the page.
 	 * 
-	 * NOTE: If an error, the page that is valid but somehow conneection went out, it should go back to the unvisited queue.
+	 * NOTE: If an error, the page that is valid but somehow conneection went out,
+	 * it should go back to the unvisited queue.
 	 * 
-	 * @return the Document that represents the content of the given URL. null
-	 *         if an error is encountered while reading the stream.
+	 * @return the Document that represents the content of the given URL. null if
+	 *         an error is encountered while reading the stream.
 	 */
 	public Document getContent() {
-		// If this has been fetched before, return the cached page.
-		if (this.content != null) {
-			return this.content;
-		}
-		
-		Document htmlPage = null;
+		Document pageContent = null;
 		BufferedReader contentReader = null;
 		try {
 			URLConnection newConnection = pageURL.openConnection();
@@ -78,7 +70,7 @@ public class HTMLPage {
 			while ((line = contentReader.readLine()) != null) {
 				htmlPageBuilder.append(line);
 			}
-			htmlPage = Jsoup.parse(htmlPageBuilder.toString());
+			pageContent = Jsoup.parse(htmlPageBuilder.toString());
 
 		} catch (IOException e) {
 			System.err.println("An error occurred while reading the page: " + pageURL.toString());
@@ -94,7 +86,7 @@ public class HTMLPage {
 				e.printStackTrace();
 			}
 		}
-		return htmlPage;
+		return pageContent;
 	}
 
 	/** 

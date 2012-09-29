@@ -34,11 +34,6 @@ public class LinkScanner implements ContentScanner<HTMLPage> {
 	 */
 	private String host;
 	
-	/**
-	 * Queue of HTML pages.
-	 */
-	private HTMLPageRepository queue;
-	
 	private Timer scanningTimer;
 	
 	private Timer pageFetchingTimer;
@@ -53,8 +48,6 @@ public class LinkScanner implements ContentScanner<HTMLPage> {
 			throw new IllegalArgumentException("host cannot be null");
 		}
 		this.host = host;
-		this.queue = queue;
-		
 		this.scanningTimer = new Timer();
 		this.pageFetchingTimer = new Timer();
 	}
@@ -65,19 +58,17 @@ public class LinkScanner implements ContentScanner<HTMLPage> {
    * return a collection of URLs
    */
 	@Override
-	public List<HTMLPage> scanPage(HTMLPage page) {
-		System.out.println(Thread.currentThread().getId() + ": Scanning: " + page.getPageURL().toString());
+	public List<HTMLPage> scanPage(HTMLPage page, Document doc) {
 		List<HTMLPage> linksFound = new ArrayList<>();
-		
-		// Retrieve the content of the page
-		this.pageFetchingTimer.start();
-		Document doc = page.getContent();
-		this.pageFetchingTimer.pause();
-		
-		// If the document cannot be fetched, then return empty list.
 		if (doc == null) {
 			return linksFound;
 		}
+		
+		// Retrieve the content of the page
+		this.pageFetchingTimer.start();
+		this.pageFetchingTimer.pause();
+		
+		// If the document cannot be fetched, then return empty list.
 		
 		this.scanningTimer.start();
 		// Look for a href element values.
@@ -132,7 +123,7 @@ public class LinkScanner implements ContentScanner<HTMLPage> {
 			return false;
 		}
 		// A list of known product filtering keys and not necessary keys
-		Set<String> filterKeys = new HashSet<>(Arrays.asList("occasion", "sort", "dir", "size", "color", "price", "rating", "gender"));
+		Set<String> filterKeys = new HashSet<>(Arrays.asList("occasion", "sort", "dir", "size", "color", "price", "rating", "gender", "page"));
 		if (filterKeys.containsAll(param.getKeySet())) {
 			return true;
 		}

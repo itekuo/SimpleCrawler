@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import page.HTMLPage;
 import page.HTMLPageRepository;
 import policy.LinkScanner;
+import price.PriceAnalyzer;
 
 /**
  * This {@link WebCrawler} crawls through the given URL.
@@ -28,7 +29,7 @@ public class WebCrawler {
 	/**
 	 * crawlersQueue free crawlers that can be used.
 	 */
-	private Queue<PageCrawler> crawlersPool;
+	private Queue<PageCrawler> freeCrawlersPool;
 	
 	/**
 	 * Number of crawlers kept in this pool.
@@ -36,15 +37,25 @@ public class WebCrawler {
 	private final int numberOfCrawlers;
 	
 	/**
+	 * {@link PriceAnalyzer}
+	 */
+	private PriceAnalyzer priceAnalyzer;
+	
+	/**
 	 * Constructor.
 	 * 
 	 * @param linkScanner used by this {@link WebCrawler} to identify all the links.
+	 * @param pageRepository storage of all the pages that have been discovered.
+	 * @param numberOfCrawlers the number of crawler threads to create
+	 * @param priceAnalyzer for analysing prices on pages.
 	 */
-	public WebCrawler(LinkScanner linkScanner, HTMLPageRepository queue, int numberOfCrawlers) {
-		this.htmlPageRepository = queue;
+	public WebCrawler(LinkScanner linkScanner, HTMLPageRepository pageRepository, 
+			int numberOfCrawlers, PriceAnalyzer priceAnalyzer) {
+		this.htmlPageRepository = pageRepository;
 		this.linkScanner = linkScanner;
 		this.numberOfCrawlers = numberOfCrawlers;
-		this.crawlersPool = new ConcurrentLinkedQueue<>();
+		this.freeCrawlersPool = new ConcurrentLinkedQueue<>();
+		this.priceAnalyzer = priceAnalyzer;
 	}
 	
 	/**
@@ -52,9 +63,10 @@ public class WebCrawler {
 	 */
 	public synchronized void initialiseCrawlers() {
 		for (int i = 0; i < numberOfCrawlers; i++) {
-			PageCrawler newCrawler = new PageCrawler(this.htmlPageRepository, this.linkScanner, this.crawlersPool);
+			PageCrawler newCrawler = new PageCrawler(this.htmlPageRepository, this.linkScanner, 
+					this.freeCrawlersPool, this.priceAnalyzer);
 			newCrawler.start();
-			this.crawlersPool.add(newCrawler);
+			this.freeCrawlersPool.add(newCrawler);
 		}
 	}
 	
@@ -73,10 +85,18 @@ public class WebCrawler {
 		 * Keep distributing tasks while there are page to visit. Only stop if the
 		 * page queue is empty and all crawlers have finished.
 		 */ 
-		while(!this.htmlPageRepository.isAllPagesVisited() || this.crawlersPool.size() != this.numberOfCrawlers) {
-			if (!this.crawlersPool.isEmpty() && !this.htmlPageRepository.isAllPagesVisited()) {
+		while(true) {
+			if (!this.freeCrawlersPool.isEmpty() && !this.htmlPageRepository.isAllPagesVisited()) {
 				
-				this.crawlersPool.poll().startCrawling(this.htmlPageRepository.pollForUnvisitedPage());
+				this.freeCrawlersPool.poll().startCrawling(this.htmlPageRepository.pollForUnvisitedPage());
+			}
+
+			if (this.htmlPageRepository.isAllPagesVisited()) {
+				System.out.println(this.freeCrawlersPool.size() + " out of " + this.numberOfCrawlers + " is active.");
+				
+				if (this.freeCrawlersPool.size() == this.numberOfCrawlers) {
+					break;
+				}
 			}
 			
 		}
@@ -85,5 +105,4 @@ public class WebCrawler {
 		System.out.println("Scanning Time: " + this.linkScanner.getScanningTimer().getTotalDurationInSeconds());
 		System.out.println("Queue Time: " + this.htmlPageRepository.getQueueTimer().getTotalDurationInSeconds());
 	}
-		
 }

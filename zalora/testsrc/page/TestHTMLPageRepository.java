@@ -1,14 +1,9 @@
 package page;
 import static org.junit.Assert.assertTrue;
 
-import java.net.URI;
 import java.net.URL;
-import java.util.StringTokenizer;
 
 import org.junit.Test;
-
-import page.HTMLPage;
-import page.HTMLPageRepository;
 
 /**
  * Test case for URLQueue
