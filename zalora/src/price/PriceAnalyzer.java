@@ -7,7 +7,6 @@ import org.jsoup.nodes.Document;
 import page.HTMLPage;
 import page.HTMLPageRepository;
 import policy.ContentScanner;
-import policy.PriceScanner;
 
 /**
  * This {@link PriceAnalyzer} goes through the visited pages found in the page

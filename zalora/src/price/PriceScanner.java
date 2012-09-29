@@ -1,4 +1,4 @@
-package policy;
+package price;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import page.HTMLPage;
-import price.Price;
+import policy.ContentScanner;
 import price.Price.Currency;
 
 /**

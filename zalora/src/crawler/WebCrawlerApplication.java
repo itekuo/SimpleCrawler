@@ -5,8 +5,8 @@ import java.net.URL;
 
 import page.HTMLPageRepository;
 import policy.LinkScanner;
-import policy.PriceScanner;
 import price.PriceAnalyzer;
+import price.PriceScanner;
 
 /**
  * This class represents the application that runs the web crawler to crawl
