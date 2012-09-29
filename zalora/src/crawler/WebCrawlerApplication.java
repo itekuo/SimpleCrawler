@@ -24,7 +24,11 @@ public class WebCrawlerApplication {
 	public static void main(String[] args) {
 		
 		String url = "http://www.zalora.sg";
-		double minPrice = 20;
+		
+		/* It's assumed that price is stated in the same currency to what the url
+		 * site uses, and the site only uses 1 currency.
+		 */
+		double minPrice = 20; 
 		double maxPrice = 2000;
 		
 		URL rootURL = null;

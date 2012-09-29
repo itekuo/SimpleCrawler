@@ -129,7 +129,7 @@ public class PageCrawler extends Thread {
 						 * Further extension can be made to log these error for further
 						 * investigation
 						 */
-						System.err.println("Error:" + e.getMessage());
+						System.err.println("Error:" + e.getMessage() + " for link: " + this.pageToCrawl.getCanonicalPageURLString());
 					}
 					finally {
 						// For whatever reason, mark the page as crawled.

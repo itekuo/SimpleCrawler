@@ -59,7 +59,7 @@ public class HTMLLink {
 		Document pageContent = null;
 		BufferedReader contentReader = null;
 		try {
-			URLConnection newConnection = linkURL.openConnection();
+			URLConnection newConnection = this.linkURL.openConnection();
 			contentReader = new BufferedReader(new InputStreamReader(newConnection.getInputStream()));
 
 			StringBuilder htmlPageBuilder = new StringBuilder();

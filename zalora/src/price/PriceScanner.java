@@ -62,7 +62,9 @@ public class PriceScanner implements ContentScanner<Price> {
 				Elements currencyElements = element.getElementsByAttributeValue("property", "gr:hasCurrency");
 				if (!priceAmountElements.isEmpty() && priceAmountElements.get(0).html() != null) {
 					try {
-						Double priceAmount = Double.parseDouble(priceAmountElements.get(0).html());
+						String priceAmountString = priceAmountElements.get(0).html();
+						Double priceAmount = Double.parseDouble(priceAmountString.trim().replace(",", ""));
+
 						// convert the currency
 						Currency currency = null;
 						if (!currencyElements.isEmpty()) {
@@ -73,7 +75,9 @@ public class PriceScanner implements ContentScanner<Price> {
 						Price p = new Price(priceAmount, currency);
 						pricesFound.add(p);
 					}
-					catch (NumberFormatException e) {System.err.println(e.getMessage());}
+					catch (NumberFormatException e) {
+						System.err.println(e.getMessage());
+					}
 					
 				}
 			}

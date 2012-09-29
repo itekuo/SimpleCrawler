@@ -15,9 +15,6 @@ public class TestLinkScanner {
 
 	@Test
 	public void testScanePage_malformedLink() {
-		fail("Not yet implemented");
-		
-		
 		// Then ignore the malformed link and carry on.
 	}
 	

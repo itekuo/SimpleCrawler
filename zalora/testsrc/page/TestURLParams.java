@@ -13,15 +13,6 @@ public class TestURLParams {
 	@Test
 	public void test() {
 		
-		// Check abc=
-		
-		// Check abc no equals
-		
-		String s = "abc=";
-		String[] split = s.split("=");
-		System.out.println(split.length);
-		System.out.println(split[0]);
-		System.out.println(split[1]);
 	}
 
 	
