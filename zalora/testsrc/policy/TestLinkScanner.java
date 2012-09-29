@@ -26,7 +26,7 @@ public class TestLinkScanner {
 	}
 	
 	public void testScanPage_shouldAvoidImages() throws Exception {
-		// ?
+		// 
 	}
 	
 	public void testScanPage_onlyReturnLinksWithTheRestrictedDomain() throws Exception {

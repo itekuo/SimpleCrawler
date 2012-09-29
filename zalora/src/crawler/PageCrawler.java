@@ -4,6 +4,7 @@
 package crawler;
 
 import java.io.FileNotFoundException;
+import java.net.SocketException;
 import java.util.Collection;
 import java.util.Queue;
 
@@ -24,6 +25,11 @@ import price.PriceAnalyzer;
 public class PageCrawler extends Thread {
 
 	/**
+	 * Specifies the number of times this {@link PageCrawler} will retry when encountering connection issues.
+	 */
+	private static final int MAX_RETRY = 3;
+	
+	/**
 	 * Specifies the queue this {@link PageCrawler} interacts with to insert all the links found in a page
 	 */
 	private HTMLLinkRepository htmlPageQueue;
@@ -36,7 +42,7 @@ public class PageCrawler extends Thread {
 	/**
 	 * Specifies the page to crawl, null when there is nothing to crawl.
 	 */
-	private HTMLLink pageToCrawl;
+	private HTMLLink linkToCrawl;
 	
 	/**
 	 * Specifies the role that analyses a page for prices.
@@ -65,42 +71,74 @@ public class PageCrawler extends Thread {
 	}
 
 	/**
-	 * Return true if this PageCrawler is still crawling a page that was given to it.
+	 * Return true if this PageCrawler still has a page to crawl.
 	 * 
 	 * @return true if this {@link PageCrawler} still has something to do.
 	 */
-	public boolean isCrawling() {
-		synchronized (this) {
-			return this.pageToCrawl != null;
-		}
+	public synchronized boolean hasPageToCrawl() {
+		return this.linkToCrawl != null;
 	}
 	
 	/**
 	 * Starts the crawling and set the busy signal to true.
 	 */
-	public void startCrawling(HTMLLink page) {
-		synchronized (this) {
-			this.pageToCrawl = page;
-			this.notifyAll();
-		}
+	public synchronized void startCrawling(HTMLLink link) {
+		this.linkToCrawl = link;
+		
+		// To notify this waiting PageCrawler
+		this.notifyAll();
 	}
 
 	/**
 	 * Stops the crawling and make itself available in the free crawler's queue.
 	 */
-	private void makeMyselfAvailable() {
-		synchronized (this) {
-			// Add myself to the free crawlers queue.
-			this.crawlersQueue.add(this);
-			
-			// Wait on itself until the WebCrawler gave it another page to crawl.
+	private synchronized void makeMyselfAvailable() {
+		// Add myself to the free crawlers queue.
+		this.crawlersQueue.add(this);
+
+		// Wait on itself until the WebCrawler gave it another page to crawl.
+		try {
+			this.wait();
+		} catch (InterruptedException e) {
+			System.out.println("Interrupted: " + e.getMessage());
+			// If interrupted, simply continue.
+		}
+	}
+
+	/**
+	 * Returns the page content for the page this {@link PageCrawler} should be
+	 * crawling. This will retry three times if there is connection issue. Returns
+	 * null if the destination URL cannot be found, or if the page cannot be
+	 * retrieve for any other reasons.
+	 * 
+	 * @param linkToCrawl page content of which is returned.
+	 * @return the page content of the given HTML
+	 */
+	private Document getPageContent(HTMLLink linkToCrawl) {
+		boolean isPageRetrieved = false;
+		Document pageContent = null;
+		
+		for (int numberOfAttempts = 0; numberOfAttempts < MAX_RETRY && !isPageRetrieved ; numberOfAttempts++) {
 			try {
-				this.wait();
-			} catch (InterruptedException e) {
-				System.err.println("Interrupted: " + e.getMessage());
-				// If interrupted, simply continue.
+				pageContent = this.linkToCrawl.getContent();
+			} 
+			catch (FileNotFoundException fnfe) {
+				// If the link is broken, then just skip this page and return.
+				isPageRetrieved = true;
+			}
+			catch (SocketException se) {
+				System.out.println("Try " + numberOfAttempts + ": " + se.getMessage() + " for link: " + this.linkToCrawl.getCanonicalPageURLString());
+				isPageRetrieved = false;
+			}
+			catch (Exception e) {
+				isPageRetrieved = true;
+				System.err.println("Error:" + e.getMessage() + " for link: " + this.linkToCrawl.getCanonicalPageURLString());
+			}
+			finally {
+				numberOfAttempts++;
 			}
 		}
+		return pageContent;
 	}
 	
 	/**
@@ -112,35 +150,32 @@ public class PageCrawler extends Thread {
 	public void run() {
 		while (true) {
 			synchronized (this) {
-				if (this.pageToCrawl != null) {
-					try {
-						Document pageContent = this.pageToCrawl.getContent();
-						Collection<HTMLLink> linksFound = this.linkScanner.scanPage(this.pageToCrawl, pageContent);
-						this.htmlPageQueue.insert(linksFound);
-
-						this.priceAnalyzer.analyse(this.pageToCrawl, pageContent);
-					}
-					catch (FileNotFoundException fnfe) {
-						// If the link is broken, then just continue.
-					}
-					catch (Exception e) {
-						/*
-						 * If for any reason the link cannot be connected, then do nothing,
-						 * Further extension can be made to log these error for further
-						 * investigation
-						 */
-						System.err.println("Error:" + e.getMessage() + " for link: " + this.pageToCrawl.getCanonicalPageURLString());
-					}
-					finally {
-						// For whatever reason, mark the page as crawled.
-						this.pageToCrawl = null;
-					}
-				}
+				if (this.linkToCrawl != null) {
+					crawl();
+				} 
 				else {
 					// If there is nothing to crawl, then make myself available.
 					makeMyselfAvailable();
 				}
 		  }
 		}
+	}
+
+	/**
+	 * The method that contains the actual logic to crawl a link assigned to this {@link PageCrawler}.
+	 */
+	public void crawl() {
+			Document pageContent = getPageContent(this.linkToCrawl);
+			
+			if (pageContent != null) {
+				Collection<HTMLLink> linksFound = this.linkScanner.scanPage(
+						this.linkToCrawl, pageContent);
+				this.htmlPageQueue.insert(linksFound);
+				
+				this.priceAnalyzer.analyse(this.linkToCrawl, pageContent);
+			}
+			
+			// For whatever reason, mark the page as crawled.
+			this.linkToCrawl = null;
 	}
 }
