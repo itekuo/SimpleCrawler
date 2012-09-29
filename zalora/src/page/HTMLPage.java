@@ -56,7 +56,7 @@ public class HTMLPage {
 	 * @return the Document that represents the content of the given URL. null if
 	 *         an error is encountered while reading the stream.
 	 */
-	public Document getContent() {
+	public Document getContent() throws IOException {
 		Document pageContent = null;
 		BufferedReader contentReader = null;
 		try {
@@ -72,46 +72,13 @@ public class HTMLPage {
 			}
 			pageContent = Jsoup.parse(htmlPageBuilder.toString());
 
-		} catch (IOException e) {
-			System.err.println("An error occurred while reading the page: " + pageURL.toString());
-			e.printStackTrace();
 		}
 		finally {
-			try {
-				if (contentReader != null) {
-					contentReader.close();
-				}
-			} catch (IOException e) {
-				System.err.println("An error occurred while closing the connetion to: " + pageURL.toString());
-				e.printStackTrace();
+			if (contentReader != null) {
+				contentReader.close();
 			}
 		}
 		return pageContent;
-	}
-
-	/** 
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		return this.getCanonicalPageURLString().hashCode();
-	}
-
-	/**
-	 * Returns true if equals
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null || !obj.getClass().isAssignableFrom(HTMLPage.class)) {
-			return false;
-		}
-		
-		HTMLPage otherPage = (HTMLPage) obj;
-		
-		return this.getCanonicalPageURLString().equals(otherPage.getCanonicalPageURLString());
 	}
 	
 	/**
@@ -142,5 +109,30 @@ public class HTMLPage {
 			newURL = urlSplitByFragment[0];
 		}
 		return newURL;
+	}
+
+	/** 
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return this.getCanonicalPageURLString().hashCode();
+	}
+	
+	/**
+	 * Returns true if equals
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null || !obj.getClass().isAssignableFrom(HTMLPage.class)) {
+			return false;
+		}
+		
+		HTMLPage otherPage = (HTMLPage) obj;
+		
+		return this.getCanonicalPageURLString().equals(otherPage.getCanonicalPageURLString());
 	}
 }
