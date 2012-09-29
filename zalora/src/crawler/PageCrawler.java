@@ -3,6 +3,7 @@
  */
 package crawler;
 
+import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.Queue;
 
@@ -52,14 +53,14 @@ public class PageCrawler extends Thread {
 	 * 
 	 * @param queue which this {@link PageCrawler} interacts to insert all the links found in a page.
 	 * @param linkScanner for scanning links in a page
-	 * @param crawlersPool the home of these crawlers, it should add itself back to the pool once is done with crawling of a page.
+	 * @param freeCrawlersPool the home of these crawlers, it should add itself back to the pool once is done with crawling of a page.
 	 * @param priceAnalyzer for analysing prices in a page.
 	 */
-	public PageCrawler(HTMLPageRepository queue, ContentScanner<HTMLPage> linkScanner, Queue<PageCrawler> crawlersPool, PriceAnalyzer priceAnalyzer) {
-		super();
+	public PageCrawler(HTMLPageRepository queue, ContentScanner<HTMLPage> linkScanner, 
+			Queue<PageCrawler> freeCrawlersPool, PriceAnalyzer priceAnalyzer) {
 		this.htmlPageQueue = queue;
 		this.linkScanner = linkScanner;
-		this.crawlersQueue = crawlersPool;
+		this.crawlersQueue = freeCrawlersPool;
 		this.priceAnalyzer = priceAnalyzer;
 	}
 
@@ -85,12 +86,20 @@ public class PageCrawler extends Thread {
 	}
 
 	/**
-	 * Stops the crawling and make itself available in the crawler's queue.
+	 * Stops the crawling and make itself available in the free crawler's queue.
 	 */
-	private void stopCrawling() {
+	private void makeMyselfAvailable() {
 		synchronized (this) {
-			this.pageToCrawl = null;
+			// Add myself to the free crawlers queue.
 			this.crawlersQueue.add(this);
+			
+			// Wait on itself until the WebCrawler gave it another page to crawl.
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				System.err.println("Interrupted: " + e.getMessage());
+				// If interrupted, simply continue.
+			}
 		}
 	}
 	
@@ -110,21 +119,26 @@ public class PageCrawler extends Thread {
 						this.htmlPageQueue.insert(linksFound);
 
 						this.priceAnalyzer.analyse(this.pageToCrawl, pageContent);
-
-						stopCrawling();			
+					}
+					catch (FileNotFoundException fnfe) {
+						// If the link is broken, then just continue.
 					}
 					catch (Exception e) {
-						System.err.println("Error:" + e.getMessage() + " " + e.getStackTrace());
+						/*
+						 * If for any reason the link cannot be connected, then do nothing,
+						 * Further extension can be made to log these error for further
+						 * investigation
+						 */
+						System.err.println("Error:" + e.getMessage());
+					}
+					finally {
+						// For whatever reason, mark the page as crawled.
+						this.pageToCrawl = null;
 					}
 				}
 				else {
-					// Wait on itself until the WebCrawler gave it another page to crawl.
-					try {
-						this.wait();
-					} catch (InterruptedException e) {
-						System.err.println("Error" + e.getMessage() + " " + e.getStackTrace());
-						// If interrupted, simply continue.
-					}
+					// If there is nothing to crawl, then make myself available.
+					makeMyselfAvailable();
 				}
 		  }
 		}

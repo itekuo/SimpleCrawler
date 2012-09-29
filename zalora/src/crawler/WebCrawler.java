@@ -92,7 +92,7 @@ public class WebCrawler {
 			}
 
 			if (this.htmlPageRepository.isAllPagesVisited()) {
-				System.out.println(this.freeCrawlersPool.size() + " out of " + this.numberOfCrawlers + " is active.");
+				System.out.println(this.freeCrawlersPool.size() + " out of " + this.numberOfCrawlers + " is free.");
 				
 				if (this.freeCrawlersPool.size() == this.numberOfCrawlers) {
 					break;
