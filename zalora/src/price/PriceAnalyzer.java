@@ -4,8 +4,8 @@ import java.util.Collection;
 
 import org.jsoup.nodes.Document;
 
-import page.HTMLPage;
-import page.HTMLPageRepository;
+import page.HTMLLink;
+import page.HTMLLinkRepository;
 import policy.ContentScanner;
 
 /**
@@ -38,15 +38,15 @@ public class PriceAnalyzer {
 	}
 
 	/**
-	 * This {@link PriceAnalyzer} talks to the {@link HTMLPageRepository} for
+	 * This {@link PriceAnalyzer} talks to the {@link HTMLLinkRepository} for
 	 * pages that are still to be scanned. It scans through the pages and prints
 	 * out any prices it finds using the {@link PriceScanner}.
 	 * 
 	 * This thread doesn't finish until its told to, and will on the
-	 * {@link HTMLPageRepository} for more pages, if there is currently no
+	 * {@link HTMLLinkRepository} for more pages, if there is currently no
 	 * page to analyse.
 	 */
-	public void analyse(HTMLPage pageToAnalyse, Document content) {
+	public void analyse(HTMLLink pageToAnalyse, Document content) {
 		if (pageToAnalyse != null) {
 
 			// Analyse

@@ -7,7 +7,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import page.HTMLPage;
+import page.HTMLLink;
 import policy.ContentScanner;
 import price.Price.Currency;
 
@@ -25,9 +25,9 @@ public class PriceScanner implements ContentScanner<Price> {
 	}
 	
 	/**
-	 * This scans through a given {@link HTMLPage} for prices. 
+	 * This scans through a given {@link HTMLLink} for prices. 
 	 */
-	public List<Price> scanPage(HTMLPage page, Document pageContent) {
+	public List<Price> scanPage(HTMLLink page, Document pageContent) {
 		List<Price> pricesFound = new ArrayList<>();
 		
 		List<Price> productDetailPrices = getPricesFromProductDetailPage(page, pageContent);
@@ -43,7 +43,7 @@ public class PriceScanner implements ContentScanner<Price> {
 	 * @param pageContent
 	 * @return a list of prices on a product details page.
 	 */
-	private List<Price> getPricesFromProductDetailPage(HTMLPage page, Document pageContent) {
+	private List<Price> getPricesFromProductDetailPage(HTMLLink page, Document pageContent) {
 		List<Price> pricesFound = new ArrayList<>();
 		
 		if (pageContent == null) {

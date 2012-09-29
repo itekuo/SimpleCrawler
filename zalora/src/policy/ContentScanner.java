@@ -3,7 +3,7 @@ import java.util.Collection;
 
 import org.jsoup.nodes.Document;
 
-import page.HTMLPage;
+import page.HTMLLink;
 
 /**
  * Interface for scanning through a HTMLPage for information
@@ -19,5 +19,5 @@ public interface ContentScanner<E> {
 	 * @param page content to be scanned.
 	 * @return a collection of items as a result of a scan.
 	 */
-	Collection<E> scanPage(HTMLPage htmlPage, Document pageContent) ;
+	Collection<E> scanPage(HTMLLink htmlPage, Document pageContent) ;
 }

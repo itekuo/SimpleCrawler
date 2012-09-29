@@ -12,8 +12,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import page.HTMLPage;
-import page.HTMLPageRepository;
+import page.HTMLLink;
+import page.HTMLLinkRepository;
 import page.URLParams;
 import utils.Timer;
 
@@ -27,7 +27,7 @@ import utils.Timer;
  * @author ted.kuo
  *
  */
-public class LinkScanner implements ContentScanner<HTMLPage> {
+public class LinkScanner implements ContentScanner<HTMLLink> {
 
 	/**
 	 * Specifies the host, under which all URLs found will be scanned and reported.
@@ -41,7 +41,7 @@ public class LinkScanner implements ContentScanner<HTMLPage> {
 	 * 
 	 * @param host, only links under the given host will be scanned and reported.
 	 */
-	public LinkScanner(String host, HTMLPageRepository queue) {
+	public LinkScanner(String host, HTMLLinkRepository queue) {
 		if (host == null) {
 			throw new IllegalArgumentException("host cannot be null");
 		}
@@ -55,8 +55,8 @@ public class LinkScanner implements ContentScanner<HTMLPage> {
    * return a collection of URLs
    */
 	@Override
-	public List<HTMLPage> scanPage(HTMLPage page, Document doc) {
-		List<HTMLPage> linksFound = new ArrayList<>();
+	public List<HTMLLink> scanPage(HTMLLink page, Document doc) {
+		List<HTMLLink> linksFound = new ArrayList<>();
 		if (doc == null) {
 			return linksFound;
 		}
@@ -73,7 +73,7 @@ public class LinkScanner implements ContentScanner<HTMLPage> {
 				
 				// Only add the link if the host is correct.
 				if (!isSimplyProductFilterQuery(link) && this.host.equals(link.getHost()) && !isZaloraAccountSpecificLink(link)) {
-					linksFound.add(new HTMLPage(link));
+					linksFound.add(new HTMLLink(link));
 				}
 			} catch (MalformedURLException e) {
 				// If a malformed link is found, log and continue.

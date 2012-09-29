@@ -3,7 +3,7 @@ package crawler;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import page.HTMLPageRepository;
+import page.HTMLLinkRepository;
 import policy.LinkScanner;
 import price.PriceAnalyzer;
 import price.PriceScanner;
@@ -36,7 +36,7 @@ public class WebCrawlerApplication {
 
 		PriceAnalyzer priceAnalyzer = new PriceAnalyzer(new PriceScanner(), minPrice, maxPrice);
 
-		HTMLPageRepository htmlPageRepository = new HTMLPageRepository();
+		HTMLLinkRepository htmlPageRepository = new HTMLLinkRepository();
 		LinkScanner linkScanner = new LinkScanner(rootURL.getHost(), htmlPageRepository);
 		WebCrawler webCrawler = new WebCrawler(linkScanner, htmlPageRepository, 50, priceAnalyzer);
 		

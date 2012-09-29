@@ -9,14 +9,14 @@ import java.util.Queue;
 
 import org.jsoup.nodes.Document;
 
-import page.HTMLPage;
-import page.HTMLPageRepository;
+import page.HTMLLink;
+import page.HTMLLinkRepository;
 import policy.ContentScanner;
 import price.PriceAnalyzer;
 
 /**
  * This defines a page crawler, which crawls through the given URL link. Links
- * found on the page are added to its {@link HTMLPageRepository}.
+ * found on the page are added to its {@link HTMLLinkRepository}.
  * 
  * @author ted.kuo
  * 
@@ -26,17 +26,17 @@ public class PageCrawler extends Thread {
 	/**
 	 * Specifies the queue this {@link PageCrawler} interacts with to insert all the links found in a page
 	 */
-	private HTMLPageRepository htmlPageQueue;
+	private HTMLLinkRepository htmlPageQueue;
 	
 	/**
 	 * Scanner for scanning the links on a page.
 	 */
-	private ContentScanner<HTMLPage> linkScanner;
+	private ContentScanner<HTMLLink> linkScanner;
 	
 	/**
 	 * Specifies the page to crawl, null when there is nothing to crawl.
 	 */
-	private HTMLPage pageToCrawl;
+	private HTMLLink pageToCrawl;
 	
 	/**
 	 * Specifies the role that analyses a page for prices.
@@ -56,7 +56,7 @@ public class PageCrawler extends Thread {
 	 * @param freeCrawlersPool the home of these crawlers, it should add itself back to the pool once is done with crawling of a page.
 	 * @param priceAnalyzer for analysing prices in a page.
 	 */
-	public PageCrawler(HTMLPageRepository queue, ContentScanner<HTMLPage> linkScanner, 
+	public PageCrawler(HTMLLinkRepository queue, ContentScanner<HTMLLink> linkScanner, 
 			Queue<PageCrawler> freeCrawlersPool, PriceAnalyzer priceAnalyzer) {
 		this.htmlPageQueue = queue;
 		this.linkScanner = linkScanner;
@@ -78,7 +78,7 @@ public class PageCrawler extends Thread {
 	/**
 	 * Starts the crawling and set the busy signal to true.
 	 */
-	public void startCrawling(HTMLPage page) {
+	public void startCrawling(HTMLLink page) {
 		synchronized (this) {
 			this.pageToCrawl = page;
 			this.notifyAll();
@@ -105,7 +105,7 @@ public class PageCrawler extends Thread {
 	
 	/**
 	 * Run to crawl the given page as set by
-	 * {@link PageCrawler#startCrawling(HTMLPage)}. Once its done, it does nothing
+	 * {@link PageCrawler#startCrawling(HTMLLink)}. Once its done, it does nothing
 	 * until another page is set for it to crawl.
 	 */
 	@Override
@@ -115,7 +115,7 @@ public class PageCrawler extends Thread {
 				if (this.pageToCrawl != null) {
 					try {
 						Document pageContent = this.pageToCrawl.getContent();
-						Collection<HTMLPage> linksFound = this.linkScanner.scanPage(this.pageToCrawl, pageContent);
+						Collection<HTMLLink> linksFound = this.linkScanner.scanPage(this.pageToCrawl, pageContent);
 						this.htmlPageQueue.insert(linksFound);
 
 						this.priceAnalyzer.analyse(this.pageToCrawl, pageContent);

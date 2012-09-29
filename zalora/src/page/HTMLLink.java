@@ -10,30 +10,29 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 /**
- * Represents a HTML page identified by it's URL. If a
- * {@link HTMLPage} has not been crawled, it has only an URL.
+ * Represents a HTML link identified by it's URL. 
  * 
  * @author ted.kuo
  */
-public class HTMLPage {
+public class HTMLLink {
 
 	/**
 	 * Specifies the URL this HTML represents
 	 */
-	private URL pageURL;
+	private URL linkURL;
 
 	/**
 	 * Constructor
 	 * 
-	 * @param url for which this {@link HTMLPage} represents.
+	 * @param url for which this {@link HTMLLink} represents.
 	 */
-	public HTMLPage(URL url) {
+	public HTMLLink(URL url) {
 		if (url == null) {
 			throw new IllegalArgumentException("the URL cannot be null");
 		}
 		try {
 			// Reconstruct the URL to store in its simplest form
-			this.pageURL = new URL(getCanonicalPageURL(url));
+			this.linkURL = new URL(getCanonicalPageURL(url));
 		} catch (MalformedURLException e) {
 			throw new IllegalArgumentException("URL is malformed: " + url.toString());
 		}
@@ -43,7 +42,7 @@ public class HTMLPage {
 	 * @return the pageURL
 	 */
 	public URL getPageURL() {
-		return pageURL;
+		return linkURL;
 	}
 
 	/**
@@ -60,7 +59,7 @@ public class HTMLPage {
 		Document pageContent = null;
 		BufferedReader contentReader = null;
 		try {
-			URLConnection newConnection = pageURL.openConnection();
+			URLConnection newConnection = linkURL.openConnection();
 			contentReader = new BufferedReader(new InputStreamReader(newConnection.getInputStream()));
 
 			StringBuilder htmlPageBuilder = new StringBuilder();
@@ -87,7 +86,7 @@ public class HTMLPage {
 	 * @return the "canonical" URL string
 	 */
 	public String getCanonicalPageURLString() {
-		return getCanonicalPageURL(pageURL);
+		return getCanonicalPageURL(linkURL);
 	}
 	
 	/**
@@ -127,11 +126,11 @@ public class HTMLPage {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null || !obj.getClass().isAssignableFrom(HTMLPage.class)) {
+		if (obj == null || !obj.getClass().isAssignableFrom(HTMLLink.class)) {
 			return false;
 		}
 		
-		HTMLPage otherPage = (HTMLPage) obj;
+		HTMLLink otherPage = (HTMLLink) obj;
 		
 		return this.getCanonicalPageURLString().equals(otherPage.getCanonicalPageURLString());
 	}

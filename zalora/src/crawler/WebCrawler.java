@@ -3,8 +3,8 @@ import java.net.URL;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import page.HTMLPage;
-import page.HTMLPageRepository;
+import page.HTMLLink;
+import page.HTMLLinkRepository;
 import policy.LinkScanner;
 import price.PriceAnalyzer;
 
@@ -19,7 +19,7 @@ public class WebCrawler {
 	/**
 	 * Specifies a queue of the links still to be crawled through.
 	 */
-	private HTMLPageRepository htmlPageRepository;
+	private HTMLLinkRepository htmlPageRepository;
 	
 	/**
 	 * Scanner for scanning links in a document.
@@ -49,7 +49,7 @@ public class WebCrawler {
 	 * @param numberOfCrawlers the number of crawler threads to create
 	 * @param priceAnalyzer for analysing prices on pages.
 	 */
-	public WebCrawler(LinkScanner linkScanner, HTMLPageRepository pageRepository, 
+	public WebCrawler(LinkScanner linkScanner, HTMLLinkRepository pageRepository, 
 			int numberOfCrawlers, PriceAnalyzer priceAnalyzer) {
 		this.htmlPageRepository = pageRepository;
 		this.linkScanner = linkScanner;
@@ -77,7 +77,7 @@ public class WebCrawler {
 	 * @param rootURL under which all the web pages are crawled. 
 	 */
 	public void crawl(URL rootURL) {
-		this.htmlPageRepository.insert(new HTMLPage(rootURL));
+		this.htmlPageRepository.insert(new HTMLLink(rootURL));
 		
 		/*
 		 * Iterate through the web pages using the Breadth-first search approach.
@@ -85,20 +85,19 @@ public class WebCrawler {
 		 * page queue is empty and all crawlers have finished.
 		 */ 
 		while(true) {
-			if (!this.freeCrawlersPool.isEmpty() && !this.htmlPageRepository.isAllPagesVisited()) {
+			if (!this.freeCrawlersPool.isEmpty() && !this.htmlPageRepository.isAllLinksVisited()) {
 				
-				this.freeCrawlersPool.poll().startCrawling(this.htmlPageRepository.pollForUnvisitedPage());
+				this.freeCrawlersPool.poll().startCrawling(this.htmlPageRepository.pollUnvisitedPageQueue());
 			}
 
-			if (this.htmlPageRepository.isAllPagesVisited()) {
+			if (this.htmlPageRepository.isAllLinksVisited()) {
 				if (this.freeCrawlersPool.size() == this.numberOfCrawlers) {
 					break;
 				}
 			}
 			
 		}
-		System.out.println(this.htmlPageRepository.getNumberOfPagesDiscovered());
+		System.out.println(this.htmlPageRepository.getNumberOfLinksDiscovered());
 		System.out.println("Scanning Time: " + this.linkScanner.getScanningTimer().getTotalDurationInSeconds());
-		System.out.println("Queue Time: " + this.htmlPageRepository.getQueueTimer().getTotalDurationInSeconds());
 	}
 }
