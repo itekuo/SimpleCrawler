@@ -66,7 +66,6 @@ public class WebCrawler {
 			PageCrawler newCrawler = new PageCrawler(this.htmlPageRepository, this.linkScanner, 
 					this.freeCrawlersPool, this.priceAnalyzer);
 			newCrawler.start();
-			this.freeCrawlersPool.add(newCrawler);
 		}
 	}
 	
@@ -92,8 +91,6 @@ public class WebCrawler {
 			}
 
 			if (this.htmlPageRepository.isAllPagesVisited()) {
-				System.out.println(this.freeCrawlersPool.size() + " out of " + this.numberOfCrawlers + " is free.");
-				
 				if (this.freeCrawlersPool.size() == this.numberOfCrawlers) {
 					break;
 				}
@@ -101,7 +98,6 @@ public class WebCrawler {
 			
 		}
 		System.out.println(this.htmlPageRepository.getNumberOfPagesDiscovered());
-		System.out.println("Page Load Time: " + this.linkScanner.getPageFetchingTimer().getTotalDurationInSeconds());
 		System.out.println("Scanning Time: " + this.linkScanner.getScanningTimer().getTotalDurationInSeconds());
 		System.out.println("Queue Time: " + this.htmlPageRepository.getQueueTimer().getTotalDurationInSeconds());
 	}

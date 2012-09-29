@@ -36,8 +36,6 @@ public class LinkScanner implements ContentScanner<HTMLPage> {
 	
 	private Timer scanningTimer;
 	
-	private Timer pageFetchingTimer;
-	
 	/**
 	 * Constructor
 	 * 
@@ -49,7 +47,6 @@ public class LinkScanner implements ContentScanner<HTMLPage> {
 		}
 		this.host = host;
 		this.scanningTimer = new Timer();
-		this.pageFetchingTimer = new Timer();
 	}
 	
 	/**
@@ -63,10 +60,6 @@ public class LinkScanner implements ContentScanner<HTMLPage> {
 		if (doc == null) {
 			return linksFound;
 		}
-		
-		// Retrieve the content of the page
-		this.pageFetchingTimer.start();
-		this.pageFetchingTimer.pause();
 		
 		// If the document cannot be fetched, then return empty list.
 		
@@ -96,13 +89,6 @@ public class LinkScanner implements ContentScanner<HTMLPage> {
 	 */
 	public Timer getScanningTimer() {
 		return scanningTimer;
-	}
-
-	/**
-	 * @return the pageFetchingTimer
-	 */
-	public Timer getPageFetchingTimer() {
-		return pageFetchingTimer;
 	}
 
 	/**

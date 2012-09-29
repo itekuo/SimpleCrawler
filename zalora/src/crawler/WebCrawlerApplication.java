@@ -38,7 +38,7 @@ public class WebCrawlerApplication {
 
 		HTMLPageRepository htmlPageRepository = new HTMLPageRepository();
 		LinkScanner linkScanner = new LinkScanner(rootURL.getHost(), htmlPageRepository);
-		WebCrawler webCrawler = new WebCrawler(linkScanner, htmlPageRepository, 30, priceAnalyzer);
+		WebCrawler webCrawler = new WebCrawler(linkScanner, htmlPageRepository, 50, priceAnalyzer);
 		
 		webCrawler.initialiseCrawlers();
 		webCrawler.crawl(rootURL);
