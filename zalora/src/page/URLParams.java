@@ -41,8 +41,12 @@ public class URLParams {
 		String[] parameterArray = parametersString.trim().split("&");
 		for (String string : parameterArray) {
 			String[] entryValue = string.split("=");
-			if (entryValue.length == 2) {
-				this.parameterEntryValue.put(entryValue[0], entryValue[1]);
+			if (entryValue.length >= 1) {
+				String parameterValue = "";
+				if (entryValue.length == 2) {
+					parameterValue = entryValue[1];
+				}
+				this.parameterEntryValue.put(entryValue[0], parameterValue);
 			}
 		}
 	}

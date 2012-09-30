@@ -49,5 +49,4 @@ public class TestHTMLLink {
 		// Then
 		assertEquals("http://www.zalora.sg/Aroma-Gardener-Antibac-Flow-Soap-%2F-300ml-43890.html", canonicalURLString);
 	}
-
 }

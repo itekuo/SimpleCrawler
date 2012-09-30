@@ -8,15 +8,11 @@ import org.junit.Test;
 import price.Price.Currency;
 
 /**
+ * Test-case for {@link Price}
  * 
  * @author ted.kuo  
- *
  */
 public class TestPrice {
-
-	@Before
-	public void setUp() throws Exception {
-	}
 
 	@Test
 	public void testCurrency_convert() {

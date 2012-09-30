@@ -5,6 +5,7 @@ package crawler;
 
 import java.io.FileNotFoundException;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.Collection;
 import java.util.Queue;
 
@@ -126,7 +127,7 @@ public class PageCrawler extends Thread {
 				// If the link is broken, then just skip this page and return.
 				isPageRetrieved = true;
 			}
-			catch (SocketException se) {
+			catch (SocketException | SocketTimeoutException se) {
 				System.out.println("Try " + numberOfAttempts + ": " + se.getMessage() + " for link: " + this.linkToCrawl.getCanonicalPageURLString());
 				isPageRetrieved = false;
 			}

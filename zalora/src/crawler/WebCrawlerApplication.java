@@ -35,7 +35,7 @@ public class WebCrawlerApplication {
 		try {
 			rootURL = new URL(url);
 		} catch (MalformedURLException e) {
-			System.err.println("The given URL is malformed.");
+			System.err.println("The given URL: " + url + " is malformed.");
 		}
 
 		PriceAnalyzer priceAnalyzer = new PriceAnalyzer(new PriceScanner(), minPrice, maxPrice);

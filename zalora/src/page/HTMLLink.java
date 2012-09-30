@@ -17,6 +17,11 @@ import org.jsoup.nodes.Document;
 public class HTMLLink {
 
 	/**
+	 * Specifies the time out in milliseconds when reading from a page.
+	 */
+	private static final int READ_TIMEOUT = 5 * 1000;
+	
+	/**
 	 * Specifies the URL this HTML represents
 	 */
 	private URL linkURL;
@@ -60,6 +65,7 @@ public class HTMLLink {
 		BufferedReader contentReader = null;
 		try {
 			URLConnection newConnection = this.linkURL.openConnection();
+			newConnection.setReadTimeout(READ_TIMEOUT);
 			contentReader = new BufferedReader(new InputStreamReader(newConnection.getInputStream()));
 
 			StringBuilder htmlPageBuilder = new StringBuilder();

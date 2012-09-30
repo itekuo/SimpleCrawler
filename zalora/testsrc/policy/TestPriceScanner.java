@@ -82,9 +82,4 @@ public class TestPriceScanner {
 		assertEquals(2000900d, pricesFound.get(0).getPriceAmount(), 0.1d);
 		assertEquals(Price.Currency.SGD, pricesFound.get(0).getCurrency());
 	}
-	
-	@Test
-	public void testScanPage_aDetailPageWithSpecialPrice() throws Exception {
-		// Given a fragment of a page that is a product detail page with a special price
-	}
 }

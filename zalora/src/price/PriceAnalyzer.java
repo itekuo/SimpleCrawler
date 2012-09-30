@@ -51,18 +51,12 @@ public class PriceAnalyzer {
 
 			// Analyse
 			Collection<Price> pricesFound = this.priceScanner.scanPage(pageToAnalyse, content);
-			if (pricesFound.isEmpty()) {
-				System.out.println("No Price Found Link: " + pageToAnalyse.getCanonicalPageURLString());
-			}
-			else {
-				for (Price price : pricesFound) {
-					Double priceAmount = price.getPriceAmount();
-					if (priceAmount < minPrice || priceAmount > maxPrice) {
-						System.out.println("Price Error: " + price + " Link: " + pageToAnalyse.getCanonicalPageURLString());
-					}
-					else {
-						System.out.println("Price Found: " + price + " Link: " + pageToAnalyse.getCanonicalPageURLString());
-					}
+			for (Price price : pricesFound) {
+				Double priceAmount = price.getPriceAmount();
+				if (priceAmount < minPrice || priceAmount > maxPrice) {
+					System.out.println("Price Error: " + price + " Link: " + pageToAnalyse.getCanonicalPageURLString());
+				} else {
+					System.out.println("Price Found: " + price + " Link: " + pageToAnalyse.getCanonicalPageURLString());
 				}
 			}
 		}
