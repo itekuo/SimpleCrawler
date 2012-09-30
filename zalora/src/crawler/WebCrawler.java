@@ -99,7 +99,19 @@ public class WebCrawler {
 				}
 			}
 		}
-		System.out.println("Finished Crawling" + rootURL.toString());
+		
+		// Stop each thread.
+		for (PageCrawler pageCrawler : this.freeCrawlersPool) {
+			pageCrawler.stopCrawling();
+			try {
+				pageCrawler.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		System.out.println("Finished Crawling " + rootURL.toString());
 		System.out.println("Found " + this.htmlPageRepository.getNumberOfLinksDiscovered() + " links");
+		return;
 	}
 }

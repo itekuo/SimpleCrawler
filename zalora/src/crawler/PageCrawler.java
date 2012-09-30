@@ -48,6 +48,11 @@ public class PageCrawler extends Thread {
 	private HTMLLink linkToCrawl;
 	
 	/**
+	 * A flag which this {@link PageCrawler} listens for when its needs to stop. True if it should stop.
+	 */
+	private boolean stopFlag;
+	
+	/**
 	 * Specifies the role that analyses a page for information.
 	 */
 	private List<PageAnalyser> pageAnalysers;
@@ -71,6 +76,7 @@ public class PageCrawler extends Thread {
 		this.linkScanners = new ArrayList<>(linkScanners);
 		this.crawlersQueue = freeCrawlersPool;
 		this.pageAnalysers = new ArrayList<>(pageAnalysers);
+		this.stopFlag = false;
 	}
 
 	/**
@@ -80,6 +86,14 @@ public class PageCrawler extends Thread {
 	 */
 	public synchronized boolean hasPageToCrawl() {
 		return this.linkToCrawl != null;
+	}
+	
+	/**
+	 * Stop this {@link PageCrawler} thread
+	 */
+	public synchronized void stopCrawling() {
+		this.stopFlag = true;
+		notifyAll();
 	}
 	
 	/**
@@ -151,7 +165,7 @@ public class PageCrawler extends Thread {
 	 */
 	@Override
 	public void run() {
-		while (true) {
+		while (!this.stopFlag) {
 			synchronized (this) {
 				if (this.linkToCrawl != null) {
 					crawl();
