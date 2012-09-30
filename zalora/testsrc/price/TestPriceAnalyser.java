@@ -1,4 +1,4 @@
-package policy;
+package price;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
