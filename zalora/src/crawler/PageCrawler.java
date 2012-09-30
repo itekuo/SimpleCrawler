@@ -6,15 +6,17 @@ package crawler;
 import java.io.FileNotFoundException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Queue;
 
 import org.jsoup.nodes.Document;
 
 import page.HTMLLink;
 import page.HTMLLinkRepository;
-import policy.ContentScanner;
-import price.PriceAnalyzer;
+import policy.HTMLLinkScanner;
+import policy.PageAnalyser;
 
 /**
  * This defines a page crawler, which crawls through the given URL link. Links
@@ -36,9 +38,9 @@ public class PageCrawler extends Thread {
 	private HTMLLinkRepository htmlPageQueue;
 	
 	/**
-	 * Scanner for scanning the links on a page.
+	 * Scanners for scanning the links on a page.
 	 */
-	private ContentScanner<HTMLLink> linkScanner;
+	private List<HTMLLinkScanner> linkScanners;
 	
 	/**
 	 * Specifies the page to crawl, null when there is nothing to crawl.
@@ -48,7 +50,7 @@ public class PageCrawler extends Thread {
 	/**
 	 * Specifies the role that analyses a page for prices.
 	 */
-	private PriceAnalyzer priceAnalyzer;
+	private List<PageAnalyser> pageAnalysers;
 	
 	/**
 	 * Specifies the queue which this crawler should return once its done.
@@ -59,16 +61,16 @@ public class PageCrawler extends Thread {
 	 * Constructor 
 	 * 
 	 * @param queue which this {@link PageCrawler} interacts to insert all the links found in a page.
-	 * @param linkScanner for scanning links in a page
+	 * @param linkScanners for scanning links in a page
 	 * @param freeCrawlersPool the home of these crawlers, it should add itself back to the pool once is done with crawling of a page.
-	 * @param priceAnalyzer for analysing prices in a page.
+	 * @param pageAnalysers for analysing information in a page.
 	 */
-	public PageCrawler(HTMLLinkRepository queue, ContentScanner<HTMLLink> linkScanner, 
-			Queue<PageCrawler> freeCrawlersPool, PriceAnalyzer priceAnalyzer) {
+	public PageCrawler(HTMLLinkRepository queue, List<HTMLLinkScanner> linkScanners, 
+			Queue<PageCrawler> freeCrawlersPool, List<PageAnalyser> pageAnalysers) {
 		this.htmlPageQueue = queue;
-		this.linkScanner = linkScanner;
+		this.linkScanners = new ArrayList<>(linkScanners);
 		this.crawlersQueue = freeCrawlersPool;
-		this.priceAnalyzer = priceAnalyzer;
+		this.pageAnalysers = new ArrayList<>(pageAnalysers);
 	}
 
 	/**
@@ -128,7 +130,6 @@ public class PageCrawler extends Thread {
 				isPageRetrieved = true;
 			}
 			catch (SocketException | SocketTimeoutException se) {
-				System.out.println("Try " + numberOfAttempts + ": " + se.getMessage() + " for link: " + this.linkToCrawl.getCanonicalPageURLString());
 				isPageRetrieved = false;
 			}
 			catch (Exception e) {
@@ -169,11 +170,16 @@ public class PageCrawler extends Thread {
 			Document pageContent = getPageContent(this.linkToCrawl);
 			
 			if (pageContent != null) {
-				Collection<HTMLLink> linksFound = this.linkScanner.scanPage(
-						this.linkToCrawl, pageContent);
+				Collection<HTMLLink> linksFound = new ArrayList<>();
+				for (HTMLLinkScanner linkScanner : this.linkScanners) {
+					linksFound.addAll(linkScanner.scanPage(
+							this.linkToCrawl, pageContent));
+				}
 				this.htmlPageQueue.insert(linksFound);
 				
-				this.priceAnalyzer.analyse(this.linkToCrawl, pageContent);
+				for (PageAnalyser pageAnalyser : this.pageAnalysers) {
+					pageAnalyser.analyse(this.linkToCrawl, pageContent);
+				}
 			}
 			
 			// For whatever reason, mark the page as crawled.

@@ -102,17 +102,23 @@ public class HTMLLink {
 	 * @return the normalised form of the given URL in string.
 	 */
 	public String getCanonicalPageURL(URL url) {
-		// Remove the trailing slash if it exists
+		// Remove the trailing query and fragment
 		String newURL = url.toString();
-		if (newURL.endsWith("/")) {
-			newURL = newURL.substring(0, newURL.length() - 1);
-		}
-		
-		// Remove the trailing fragment
 		String[] urlSplitByFragment = newURL.split("#");
 		if (urlSplitByFragment.length >= 1) {
 			newURL = urlSplitByFragment[0];
 		}
+		
+		String[] urlSplitByQueryParameter = newURL.split("[?]");
+		if (urlSplitByQueryParameter.length >= 1) {
+			newURL = urlSplitByQueryParameter[0];
+		}
+
+		// Remove the trailing slash if it exists
+		if (newURL.endsWith("/")) {
+			newURL = newURL.substring(0, newURL.length() - 1);
+		}
+		
 		return newURL;
 	}
 

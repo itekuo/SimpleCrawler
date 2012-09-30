@@ -26,5 +26,4 @@ public class TestPrice {
 		assertEquals(null, currency3);
 		assertEquals(null, currency4);
 	}
-
 }

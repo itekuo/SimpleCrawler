@@ -1,12 +1,15 @@
 package crawler;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import page.HTMLLink;
 import page.HTMLLinkRepository;
+import policy.HTMLLinkScanner;
 import policy.LinkScanner;
-import price.PriceAnalyzer;
+import policy.PageAnalyser;
 
 /**
  * This {@link WebCrawler} crawls through the given URL.
@@ -24,7 +27,7 @@ public class WebCrawler {
 	/**
 	 * Scanner for scanning links in a document.
 	 */
-	private LinkScanner linkScanner;
+	private List<HTMLLinkScanner> linkScanners;
 	
 	/**
 	 * crawlersQueue free crawlers that can be used.
@@ -37,34 +40,34 @@ public class WebCrawler {
 	private final int numberOfCrawlers;
 	
 	/**
-	 * {@link PriceAnalyzer}
+	 * {@link PageAnalyser}
 	 */
-	private PriceAnalyzer priceAnalyzer;
+	private List<PageAnalyser> pageAnalysers;
 	
 	/**
 	 * Constructor.
 	 * 
-	 * @param linkScanner used by this {@link WebCrawler} to identify all the links.
+	 * @param linkScanners used by this {@link WebCrawler} to identify all the links.
 	 * @param pageRepository storage of all the pages that have been discovered.
 	 * @param numberOfCrawlers the number of crawler threads to create
-	 * @param priceAnalyzer for analysing prices on pages.
+	 * @param pageAnalyzer for analysing information on pages.
 	 */
-	public WebCrawler(LinkScanner linkScanner, HTMLLinkRepository pageRepository, 
-			int numberOfCrawlers, PriceAnalyzer priceAnalyzer) {
+	public WebCrawler(List<HTMLLinkScanner> linkScanners, HTMLLinkRepository pageRepository, 
+			int numberOfCrawlers, List<PageAnalyser> pageAnalysers) {
 		this.htmlPageRepository = pageRepository;
-		this.linkScanner = linkScanner;
 		this.numberOfCrawlers = numberOfCrawlers;
 		this.freeCrawlersPool = new ConcurrentLinkedQueue<>();
-		this.priceAnalyzer = priceAnalyzer;
+		this.linkScanners = new ArrayList<>(linkScanners);
+		this.pageAnalysers = new ArrayList<>(pageAnalysers);
 	}
-	
+
 	/**
 	 * Initialise all the page crawlers, at present, starts 5 crawler threads to crawl through a page.
 	 */
 	public synchronized void initialiseCrawlers() {
 		for (int i = 0; i < numberOfCrawlers; i++) {
-			PageCrawler newCrawler = new PageCrawler(this.htmlPageRepository, this.linkScanner, 
-					this.freeCrawlersPool, this.priceAnalyzer);
+			PageCrawler newCrawler = new PageCrawler(this.htmlPageRepository, this.linkScanners, 
+					this.freeCrawlersPool, this.pageAnalysers);
 			newCrawler.start();
 		}
 	}
@@ -77,6 +80,7 @@ public class WebCrawler {
 	 * @param rootURL under which all the web pages are crawled. 
 	 */
 	public void crawl(URL rootURL) {
+		System.out.println("Crawling " + rootURL.toString());
 		this.htmlPageRepository.insert(new HTMLLink(rootURL));
 		
 		/*
@@ -86,7 +90,6 @@ public class WebCrawler {
 		 */ 
 		while(true) {
 			if (!this.freeCrawlersPool.isEmpty() && !this.htmlPageRepository.isAllLinksVisited()) {
-				
 				this.freeCrawlersPool.poll().startCrawling(this.htmlPageRepository.pollUnvisitedPageQueue());
 			}
 
@@ -95,9 +98,8 @@ public class WebCrawler {
 					break;
 				}
 			}
-			
 		}
-		System.out.println(this.htmlPageRepository.getNumberOfLinksDiscovered());
-		System.out.println("Scanning Time: " + this.linkScanner.getScanningTimer().getTotalDurationInSeconds());
+		System.out.println("Finished Crawling" + rootURL.toString());
+		System.out.println("Found " + this.htmlPageRepository.getNumberOfLinksDiscovered() + " links");
 	}
 }

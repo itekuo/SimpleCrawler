@@ -19,8 +19,9 @@ import org.mockito.exceptions.verification.NeverWantedButInvoked;
 
 import page.HTMLLink;
 import page.HTMLLinkRepository;
+import policy.HTMLLinkScanner;
 import policy.LinkScanner;
-import price.PriceAnalyzer;
+import policy.PageAnalyser;
 
 /**
  * Test-Case for {@link PageCrawler}
@@ -31,9 +32,9 @@ import price.PriceAnalyzer;
 public class TestPageCrawler {
 
 	@Mock HTMLLinkRepository linkRepository;
-	@Mock LinkScanner linkScanner;
+	@Mock HTMLLinkScanner linkScanner;
 	@Mock Queue<PageCrawler> freeCrawlersPool;
-	@Mock PriceAnalyzer priceAnalyzer;
+	@Mock PageAnalyser priceAnalyser;
 	@Mock HTMLLink htmlLink;
 	@Mock Document docRetreived;
 	
@@ -45,7 +46,7 @@ public class TestPageCrawler {
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		this.pageCrawler = new PageCrawler(linkRepository, linkScanner, freeCrawlersPool, priceAnalyzer);
+		this.pageCrawler = new PageCrawler(linkRepository, Arrays.asList(linkScanner), freeCrawlersPool, Arrays.asList(priceAnalyser));
 	}
 	
 	@Test
@@ -64,7 +65,7 @@ public class TestPageCrawler {
 		// Then: not crawling and has added itself back to be available.
 		assertFalse(this.pageCrawler.hasPageToCrawl());
 		verify(this.linkRepository).insert(linksFound);
-		verify(this.priceAnalyzer).analyse(htmlLink, docRetreived);
+		verify(this.priceAnalyser).analyse(htmlLink, docRetreived);
 	}
 
 	@Test
@@ -89,6 +90,6 @@ public class TestPageCrawler {
 		// Then: not crawling and has added itself back to be available.
 		assertFalse(this.pageCrawler.hasPageToCrawl());
 		verifyZeroInteractions(this.linkRepository);
-		verifyZeroInteractions(this.priceAnalyzer);
+		verifyZeroInteractions(this.priceAnalyser);
 	}	
 }

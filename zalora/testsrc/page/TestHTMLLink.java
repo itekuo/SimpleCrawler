@@ -16,7 +16,7 @@ public class TestHTMLLink {
 	@Test
 	public void testGetCanonicalPageURLString_pageWithTrailingSlashes() throws Exception {
 		// Given
-		HTMLLink page = new HTMLLink(new URL("http://www.singapore.sg/"));
+		HTMLLink page = new HTMLLink(new URL("http://www.singapore.sg/#"));
 		
 		// When
 		String canonicalURLString = page.getCanonicalPageURLString();
@@ -40,13 +40,36 @@ public class TestHTMLLink {
 	@Test
 	public void testGetCanonicalPageURLString_normalRootPage() throws Exception {
 		// Given
-		HTMLLink page = new HTMLLink(
-				new URL("http://www.zalora.sg/Aroma-Gardener-Antibac-Flow-Soap-%2F-300ml-43890.html"));
+		HTMLLink page = new HTMLLink(new URL("http://www.zalora.sg/Aroma-Gardener-Antibac-Flow-Soap-%2F-300ml-43890.html"));
 
 		// When
 		String canonicalURLString = page.getCanonicalPageURLString();
 
 		// Then
 		assertEquals("http://www.zalora.sg/Aroma-Gardener-Antibac-Flow-Soap-%2F-300ml-43890.html", canonicalURLString);
+	}
+	
+	@Test
+	public void testGetCanonicalPageURLString_pageWithQuery() throws Exception {
+	// Given
+			HTMLLink page = new HTMLLink(new URL("http://www.zalora.sg/selected/?from=men-home-banner"));
+
+			// When
+			String canonicalURLString = page.getCanonicalPageURLString();
+
+			// Then
+			assertEquals("http://www.zalora.sg/selected", canonicalURLString);
+	}
+
+	@Test
+	public void testGetCanonicalPageURLString_pageWithQueryAndFragment() throws Exception {
+		// Given
+		HTMLLink page = new HTMLLink(new URL("http://www.zalora.sg/selected/?from=men-home-banner#section=A"));
+
+		// When
+		String canonicalURLString = page.getCanonicalPageURLString();
+
+		// Then
+		assertEquals("http://www.zalora.sg/selected", canonicalURLString);
 	}
 }

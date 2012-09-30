@@ -18,26 +18,20 @@ import page.URLParams;
 import utils.Timer;
 
 /**
- * 
- */
-
-/**
  * This scanner scans for HTML links.
  * 
  * @author ted.kuo
- *
  */
-public class LinkScanner implements ContentScanner<HTMLLink> {
+public class LinkScanner implements HTMLLinkScanner {
 
 	/**
 	 * Specifies the host, under which all URLs found will be scanned and reported.
 	 */
 	private String host;
 	
-	private Timer scanningTimer;
-	
 	/**
 	 * Constructor
+	 * 
 	 * 
 	 * @param host, only links under the given host will be scanned and reported.
 	 */
@@ -46,7 +40,6 @@ public class LinkScanner implements ContentScanner<HTMLLink> {
 			throw new IllegalArgumentException("host cannot be null");
 		}
 		this.host = host;
-		this.scanningTimer = new Timer();
 	}
 	
 	/**
@@ -57,13 +50,11 @@ public class LinkScanner implements ContentScanner<HTMLLink> {
 	@Override
 	public List<HTMLLink> scanPage(HTMLLink page, Document doc) {
 		List<HTMLLink> linksFound = new ArrayList<>();
+		// If the document is null, then return empty list.
 		if (doc == null) {
 			return linksFound;
 		}
 		
-		// If the document cannot be fetched, then return empty list.
-		
-		this.scanningTimer.start();
 		// Look for a href element values.
 		Elements anchorTags = doc.getElementsByTag("a");
 		for (Element element : anchorTags) {
@@ -72,7 +63,7 @@ public class LinkScanner implements ContentScanner<HTMLLink> {
 				URL link = new URL(page.getPageURL(), hrefValue);
 				
 				// Only add the link if the host is correct.
-				if (!isSimplyProductFilterQuery(link) && this.host.equals(link.getHost()) && !isZaloraAccountSpecificLink(link)) {
+				if (this.host.equals(link.getHost()) && !isZaloraAccountSpecificLink(link)) {
 					linksFound.add(new HTMLLink(link));
 				}
 			} catch (MalformedURLException e) {
@@ -80,43 +71,15 @@ public class LinkScanner implements ContentScanner<HTMLLink> {
 				System.err.println("Malformed link found: " + hrefValue);
 			}
 		}
-		this.scanningTimer.pause();
 		return linksFound;
 	}
 	
 	/**
-	 * @return the scanningTimer
+	 * Return true if this is an account specific link. It should be ignored.
+	 * 
+	 * @param url to be checked.
+	 * @return true if the given URL is recognised as a link to unhelpful pages.
 	 */
-	public Timer getScanningTimer() {
-		return scanningTimer;
-	}
-
-	/**
-	 * This returns true if the link found to be "filter" link which won't help us to find more product pricing.
-	 * 
-	 * Any link that is found to have either <sort, dir, size> , <sort, dir, color>, <sort, dir, price>, <sort, dir, rating>
-	 * 
-	 * This can be later be turned into flexible policies, if special rule like
-	 * this increases, or if we like to stay flexible. This is currently kept as
-	 * is for simplicity and readability.
-	 * 
-	 * @param url to check.
-	 * @return true if the URL contains query parameters that are only to filter the existing page.
-	 */
-	private boolean isSimplyProductFilterQuery(URL url) {
-		URLParams param = new URLParams(url);
-		if (param.getKeySet().size() == 0) {
-			return false;
-		}
-		// A list of known product filtering keys and not necessary keys
-		Set<String> filterKeys = new HashSet<>(Arrays.asList("occasion", "sort", "dir", "size", "color", "price", "rating", "gender", "page"));
-		if (filterKeys.containsAll(param.getKeySet())) {
-			return true;
-		}
-		
-		return false;
-	}
-	
 	private boolean isZaloraAccountSpecificLink(URL url) {
 		return (url.getPath().startsWith("/sendfriend") || url.getPath().startsWith("/customer/wishlist/add/p/"));
 	}

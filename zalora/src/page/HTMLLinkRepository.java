@@ -75,8 +75,6 @@ public class HTMLLinkRepository {
 		for (HTMLLink page : pages) {
 			insert(page);
 		}
-		
-		System.out.println("Queue: " + this.unvisitedLinkQueue.size());
 	}
 	
 	/**

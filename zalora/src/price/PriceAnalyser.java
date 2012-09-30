@@ -1,6 +1,7 @@
 package price;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.jsoup.nodes.Document;
@@ -8,26 +9,53 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import page.HTMLLink;
-import policy.ContentScanner;
+import policy.PageAnalyser;
 import price.Price.Currency;
 
 /**
- * This 
+ * This {@link PriceAnalyser} scans through pages for wrong prices that is outside the given range. 
+ * 
  * @author ted.kuo
- *
  */
-public class PriceScanner implements ContentScanner<Price> {
+public class PriceAnalyser implements PageAnalyser {
 
 	/**
-	 * Constructor
+	 * Specifies the min and max price that indicates the "correct" range.
 	 */
-	public PriceScanner() {
+	private double minPrice, maxPrice;
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param minPrice minimum price range 
+	 * @param maxPrice maximum price range
+	 */
+	public PriceAnalyser(double minPrice, double maxPrice) {
+		this.minPrice = minPrice;
+		this.maxPrice = maxPrice;
+	}
+
+	/**
+	 * Goes through the page content and print out any price that is outside the range.
+	 */
+	@Override
+	public void analyse(HTMLLink link, Document linkContent) {
+		if (link != null & linkContent != null) {
+			// Analyse
+			Collection<Price> pricesFound = getAllPricesFromPage(link, linkContent);
+			for (Price price : pricesFound) {
+				Double priceAmount = price.getPriceAmount();
+				if (priceAmount < this.minPrice || priceAmount > this.maxPrice) {
+					System.out.println("Price Error: " + price + ", Link: " + link.getCanonicalPageURLString());
+				}
+			}
+		}		
 	}
 	
 	/**
 	 * This scans through a given {@link HTMLLink} for prices. 
 	 */
-	public List<Price> scanPage(HTMLLink page, Document pageContent) {
+	public List<Price> getAllPricesFromPage(HTMLLink page, Document pageContent) {
 		List<Price> pricesFound = new ArrayList<>();
 		
 		List<Price> productDetailPrices = getPricesFromProductDetailPage(page, pageContent);
@@ -84,5 +112,4 @@ public class PriceScanner implements ContentScanner<Price> {
 		}
 		return pricesFound;
 	}
-
 }

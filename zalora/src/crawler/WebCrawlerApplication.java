@@ -2,11 +2,13 @@ package crawler;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 
 import page.HTMLLinkRepository;
+import policy.HTMLLinkScanner;
 import policy.LinkScanner;
-import price.PriceAnalyzer;
-import price.PriceScanner;
+import policy.PageAnalyser;
+import price.PriceAnalyser;
 
 /**
  * This class represents the application that runs the web crawler to crawl
@@ -38,11 +40,11 @@ public class WebCrawlerApplication {
 			System.err.println("The given URL: " + url + " is malformed.");
 		}
 
-		PriceAnalyzer priceAnalyzer = new PriceAnalyzer(new PriceScanner(), minPrice, maxPrice);
+		PageAnalyser priceAnalyzer = new PriceAnalyser(minPrice, maxPrice);
 
 		HTMLLinkRepository htmlPageRepository = new HTMLLinkRepository();
-		LinkScanner linkScanner = new LinkScanner(rootURL.getHost(), htmlPageRepository);
-		WebCrawler webCrawler = new WebCrawler(linkScanner, htmlPageRepository, 50, priceAnalyzer);
+		HTMLLinkScanner linkScanner = new LinkScanner(rootURL.getHost(), htmlPageRepository);
+		WebCrawler webCrawler = new WebCrawler(Arrays.asList(linkScanner), htmlPageRepository, 50, Arrays.asList(priceAnalyzer));
 		
 		webCrawler.initialiseCrawlers();
 		webCrawler.crawl(rootURL);
