@@ -3,22 +3,16 @@ package policy;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import page.HTMLLink;
-import page.HTMLLinkRepository;
-import page.URLParams;
-import utils.Timer;
 
 /**
- * This scanner scans for HTML links.
+ * This scanner scans for HTML anchor href links.
  * 
  * @author ted.kuo
  */
@@ -32,10 +26,9 @@ public class LinkScanner implements HTMLLinkScanner {
 	/**
 	 * Constructor
 	 * 
-	 * 
 	 * @param host, only links under the given host will be scanned and reported.
 	 */
-	public LinkScanner(String host, HTMLLinkRepository queue) {
+	public LinkScanner(String host) {
 		if (host == null) {
 			throw new IllegalArgumentException("host cannot be null");
 		}

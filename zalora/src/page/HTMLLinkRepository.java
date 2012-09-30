@@ -4,11 +4,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
-import utils.Timer;
 import crawler.PageCrawler;
-import crawler.WebCrawler;
 
 /**
  * This specifies a repository of all the {@link HTMLLink}s that have been
@@ -16,7 +13,7 @@ import crawler.WebCrawler;
  * keeps a unique set of URLs. Duplicate URLs are ignored when they are inserted
  * to this repository.
  * 
- * This repository also maintain {@link HTMLLink}s that have not yet been
+ * This repository also maintain {@link HTMLLink}s that have been found but not yet
  * crawled. {@link HTMLLink}s that have not been discovered yet are kept in a
  * simple FIFO queue.
  * 

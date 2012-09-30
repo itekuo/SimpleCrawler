@@ -8,14 +8,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import page.HTMLLink;
 import page.HTMLLinkRepository;
 import policy.HTMLLinkScanner;
-import policy.LinkScanner;
 import policy.PageAnalyser;
 
 /**
- * This {@link WebCrawler} crawls through the given URL.
+ * This {@link WebCrawler} crawls through the given URL and the pages that's
+ * linked to this page under the same host.
  * 
  * @author ted.kuo
- *
+ * 
  */
 public class WebCrawler {
 

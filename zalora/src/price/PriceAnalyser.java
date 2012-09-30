@@ -46,7 +46,7 @@ public class PriceAnalyser implements PageAnalyser {
 			for (Price price : pricesFound) {
 				Double priceAmount = price.getPriceAmount();
 				if (priceAmount < this.minPrice || priceAmount > this.maxPrice) {
-					System.out.println("Price Error: " + price + ", Link: " + link.getCanonicalPageURLString());
+					System.out.println("Price Error: " + price + " Link: " + link.getCanonicalPageURLString());
 				}
 			}
 		}		

@@ -43,7 +43,7 @@ public class WebCrawlerApplication {
 		PageAnalyser priceAnalyzer = new PriceAnalyser(minPrice, maxPrice);
 
 		HTMLLinkRepository htmlPageRepository = new HTMLLinkRepository();
-		HTMLLinkScanner linkScanner = new LinkScanner(rootURL.getHost(), htmlPageRepository);
+		HTMLLinkScanner linkScanner = new LinkScanner(rootURL.getHost());
 		WebCrawler webCrawler = new WebCrawler(Arrays.asList(linkScanner), htmlPageRepository, 50, Arrays.asList(priceAnalyzer));
 		
 		webCrawler.initialiseCrawlers();

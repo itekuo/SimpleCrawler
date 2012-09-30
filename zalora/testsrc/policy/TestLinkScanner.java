@@ -21,8 +21,6 @@ import page.HTMLLinkRepository;
  */
 public class TestLinkScanner {
 
-	@Mock HTMLLinkRepository repo;
-	
 	/**
 	 * Object in test
 	 */
@@ -30,8 +28,7 @@ public class TestLinkScanner {
 	
 	@Before
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
-		this.linkScanner = new LinkScanner("www.zalora.sg", this.repo);
+		this.linkScanner = new LinkScanner("www.zalora.sg");
 	}
 	
 	@Test
@@ -43,7 +40,7 @@ public class TestLinkScanner {
 	@Test
 	public void testScanPage_onlyFindLinksUnderTheSameHost() throws Exception {
 		// Given
-		HTMLLink link = new HTMLLink(new URL("http://zalora.sg/shoes"));
+		HTMLLink link = new HTMLLink(new URL("http://www.zalora.sg/shoes"));
 		Document content = Jsoup.parse("<h4 class=\"ui-borderBottom pbs\"><a href=\"/women/new-arrivals/\">Women</a></h4>" +
 		"<a href=\"http://cosmopolitan.sg/2012/09/19/for-your-surfing-pleasure/\"><span style=\"margin:6px\">" +
 		"<img src=\"http://d1iv60t95n7wx3.cloudfront.net/cms/icon/cosmopolitan.png\"  width=\"80\" alt=\"\" " +
@@ -54,7 +51,7 @@ public class TestLinkScanner {
 		
 		// Then all the href tag is found.
 		assertEquals(1, linksFound.size());
-		assertEquals("http://zalora.sg/shoes/women/new-arrivals/", linksFound.get(0).toString());
+		assertEquals("http://www.zalora.sg/women/new-arrivals", linksFound.get(0).getPageURL().toString());
 	}
 	
 	@Test
