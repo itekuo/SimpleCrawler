@@ -15,7 +15,7 @@ public class Price {
 	private double priceAmount;
 
 	/**
-	 * Currency of a price. A price is allow to 
+	 * Currency of a price. 
 	 */
 	private Currency currency;
 

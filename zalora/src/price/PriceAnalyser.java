@@ -53,7 +53,7 @@ public class PriceAnalyser implements PageAnalyser {
 	}
 	
 	/**
-	 * This scans through a given {@link HTMLLink} for prices. 
+	 * This scans through a given {@link HTMLLink} and its content for prices. 
 	 */
 	public List<Price> getAllPricesFromPage(HTMLLink page, Document pageContent) {
 		List<Price> pricesFound = new ArrayList<>();
@@ -67,11 +67,11 @@ public class PriceAnalyser implements PageAnalyser {
 	/**
 	 * A specific mechanism to search for prices in a Zalora product detail page.
 	 * 
-	 * @param page to be scanned for prices.
-	 * @param pageContent
+	 * @param linke to be scanned for prices.
+	 * @param pageContent of the given link.
 	 * @return a list of prices on a product details page.
 	 */
-	private List<Price> getPricesFromProductDetailPage(HTMLLink page, Document pageContent) {
+	private List<Price> getPricesFromProductDetailPage(HTMLLink linke, Document pageContent) {
 		List<Price> pricesFound = new ArrayList<>();
 		
 		if (pageContent == null) {
@@ -79,11 +79,11 @@ public class PriceAnalyser implements PageAnalyser {
 		}
 		
 		/* 
-		 * Only apply this to "leaf" pages which is identified by pages having html
+		 * Only apply this to "leaf" pages which is identified by pages having .html
 		 * extension. At Zalora page, all product detail page ends with .html
 		 * extension.
 		 */
-		if (page.getPageURL().getPath().endsWith(".html")) {
+		if (linke.getPageURL().getPath().endsWith(".html")) {
 			Elements priceElements = pageContent.getElementsByClass("prd-price");
 			for (Element element : priceElements) {
 				Elements priceAmountElements = element.getElementsByAttributeValue("property", "gr:hasCurrencyValue");

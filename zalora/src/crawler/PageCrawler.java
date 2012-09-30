@@ -35,7 +35,7 @@ public class PageCrawler extends Thread {
 	/**
 	 * Specifies the queue this {@link PageCrawler} interacts with to insert all the links found in a page
 	 */
-	private HTMLLinkRepository htmlPageQueue;
+	private HTMLLinkRepository htmlLinkRepository;
 	
 	/**
 	 * Scanners for scanning the links on a page.
@@ -48,26 +48,26 @@ public class PageCrawler extends Thread {
 	private HTMLLink linkToCrawl;
 	
 	/**
-	 * Specifies the role that analyses a page for prices.
+	 * Specifies the role that analyses a page for information.
 	 */
 	private List<PageAnalyser> pageAnalysers;
 	
 	/**
-	 * Specifies the queue which this crawler should return once its done.
+	 * Specifies the queue which this crawler should return to once its done.
 	 */
 	private Queue<PageCrawler> crawlersQueue;
 	
 	/**
 	 * Constructor 
 	 * 
-	 * @param queue which this {@link PageCrawler} interacts to insert all the links found in a page.
+	 * @param htmlLinkRespository which this {@link PageCrawler} interacts to insert all the links found in a page.
 	 * @param linkScanners for scanning links in a page
 	 * @param freeCrawlersPool the home of these crawlers, it should add itself back to the pool once is done with crawling of a page.
 	 * @param pageAnalysers for analysing information in a page.
 	 */
-	public PageCrawler(HTMLLinkRepository queue, List<HTMLLinkScanner> linkScanners, 
+	public PageCrawler(HTMLLinkRepository htmlLinkRespository, List<HTMLLinkScanner> linkScanners, 
 			Queue<PageCrawler> freeCrawlersPool, List<PageAnalyser> pageAnalysers) {
-		this.htmlPageQueue = queue;
+		this.htmlLinkRepository = htmlLinkRespository;
 		this.linkScanners = new ArrayList<>(linkScanners);
 		this.crawlersQueue = freeCrawlersPool;
 		this.pageAnalysers = new ArrayList<>(pageAnalysers);
@@ -83,7 +83,7 @@ public class PageCrawler extends Thread {
 	}
 	
 	/**
-	 * Starts the crawling and set the busy signal to true.
+	 * Starts the crawling.
 	 */
 	public synchronized void startCrawling(HTMLLink link) {
 		this.linkToCrawl = link;
@@ -103,8 +103,8 @@ public class PageCrawler extends Thread {
 		try {
 			this.wait();
 		} catch (InterruptedException e) {
-			System.out.println("Interrupted: " + e.getMessage());
 			// If interrupted, simply continue.
+			System.out.println("Interrupted: " + e.getMessage());
 		}
 	}
 
@@ -112,10 +112,10 @@ public class PageCrawler extends Thread {
 	 * Returns the page content for the page this {@link PageCrawler} should be
 	 * crawling. This will retry three times if there is connection issue. Returns
 	 * null if the destination URL cannot be found, or if the page cannot be
-	 * retrieve for any other reasons.
+	 * retrieved for any other reasons.
 	 * 
 	 * @param linkToCrawl page content of which is returned.
-	 * @return the page content of the given HTML
+	 * @return the page content of the given {@link HTMLLink}
 	 */
 	private Document getPageContent(HTMLLink linkToCrawl) {
 		boolean isPageRetrieved = false;
@@ -124,6 +124,7 @@ public class PageCrawler extends Thread {
 		for (int numberOfAttempts = 0; numberOfAttempts < MAX_RETRY && !isPageRetrieved ; numberOfAttempts++) {
 			try {
 				pageContent = this.linkToCrawl.getContent();
+				isPageRetrieved = true;
 			} 
 			catch (FileNotFoundException fnfe) {
 				// If the link is broken, then just skip this page and return.
@@ -175,7 +176,7 @@ public class PageCrawler extends Thread {
 					linksFound.addAll(linkScanner.scanPage(
 							this.linkToCrawl, pageContent));
 				}
-				this.htmlPageQueue.insert(linksFound);
+				this.htmlLinkRepository.insert(linksFound);
 				
 				for (PageAnalyser pageAnalyser : this.pageAnalysers) {
 					pageAnalyser.analyse(this.linkToCrawl, pageContent);

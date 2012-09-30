@@ -54,11 +54,9 @@ public class HTMLLink {
 	 * Using the URL of this page, it retrieves it's content, and then create a
 	 * document that represents the content of the page.
 	 * 
-	 * NOTE: If an error, the page that is valid but somehow conneection went out,
-	 * it should go back to the unvisited queue.
-	 * 
 	 * @return the Document that represents the content of the given URL. null if
 	 *         an error is encountered while reading the stream.
+	 * @throws IOException when there is an issue retrieving content.
 	 */
 	public Document getContent() throws IOException {
 		Document pageContent = null;
@@ -68,7 +66,7 @@ public class HTMLLink {
 			newConnection.setReadTimeout(READ_TIMEOUT);
 			contentReader = new BufferedReader(new InputStreamReader(newConnection.getInputStream()));
 
-			StringBuilder htmlPageBuilder = new StringBuilder();
+			StringBuilder htmlPageBuilder = new StringBuilder("");
 			String line = "";
 
 			// Concatenate the page content into 1 single string. New-line character is not preserved.
@@ -92,7 +90,7 @@ public class HTMLLink {
 	 * @return the "canonical" URL string
 	 */
 	public String getCanonicalPageURLString() {
-		return getCanonicalPageURL(linkURL);
+		return getCanonicalPageURL(this.linkURL);
 	}
 	
 	/**
@@ -123,6 +121,7 @@ public class HTMLLink {
 	}
 
 	/** 
+	 * HashCode
 	 * 
 	 * @see java.lang.Object#hashCode()
 	 */

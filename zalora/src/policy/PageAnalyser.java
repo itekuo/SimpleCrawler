@@ -11,7 +11,7 @@ import page.HTMLLink;
 
 /**
  * This specifies a {@link PageAnalyser} which analyses a page that is being
- * crawled by a {@link PageCrawler}. It gives {@link PageAnalyser} a change to
+ * crawled by a {@link PageCrawler}. It gives {@link PageAnalyser} a chance to
  * extract information from the page being crawled.
  * 
  * @author ted.kuo
@@ -19,7 +19,7 @@ import page.HTMLLink;
 public interface PageAnalyser {
 
 	/**
-	 * Given a link and its content, it gives a {@link PageAnalyser} opportunity
+	 * Given a link and its content, it gives {@link PageAnalyser} an opportunity
 	 * to analyses the given page for information.
 	 * 
 	 * @param link for which the page content is analysed 
